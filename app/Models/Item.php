@@ -63,7 +63,7 @@ class Item extends Model
     /**
      * عودت کالا به انبار
      */
-    public function toStorage($notes = null)
+    public function returntoStorage($notes = null)
     {
         if (!$this->current_personnel_id) {
             throw new \Exception("این کالا دست کسی نیست که بخواهد برگردد.");
