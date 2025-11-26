@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreItemRequest;
 use App\Models\Item;
+use App\Models\Personnel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ItemController extends Controller
 {
@@ -28,8 +30,8 @@ class ItemController extends Controller
         }
 
         $items = $query->latest()->paginate(20);
-
-        return view('items.index', compact('items'));
+        $personals = Personnel::all();
+        return view('items.index', compact('items', 'personals'));
     }
 
 
@@ -40,10 +42,58 @@ class ItemController extends Controller
 
     public function store(StoreItemRequest $request)
     {
-        Item::create($request->validated());
-        return redirect()->route('items.index')->with('success', 'کالا با موفقیت ثبت شد.');
+
+        DB::transaction(function () use ($request) {
+
+
+            $data = $request->except(['serial_number_auto', 'inventory_code_auto', '_token']);
+
+
+            if ($request->boolean('serial_number_auto'))
+            {
+                $data['serial_number'] = $this->generateNextCode('serial_number', 'SN-', 10000);
+            }
+
+            if ($request->boolean('inventory_code_auto'))
+            {
+                $data['inventory_code'] = $this->generateNextCode('inventory_code', 'INV-', 10000);
+            }
+
+            Item::create($data);
+        });
+
+        return redirect()->route('items.index')
+            ->with('success', 'کالا با موفقیت ثبت شد.');
     }
 
+    /**
+     * متد هوشمند برای تولید کد بعدی
+     * @param string $column نام ستون (serial_number یا inventory_code)
+     * @param string $prefix پیشوند ثابت (مثلاً INV-)
+     * @param int $startFrom عدد شروع کننده (مثلاً 10000 برای اینکه همه کدها هم‌اندازه باشند)
+     */
+    private function generateNextCode($column, $prefix, $startFrom = 10000)
+    {
+
+        $lastRecord = Item::where($column, 'LIKE', "{$prefix}%")
+            ->orderByRaw("LENGTH({$column}) DESC")
+            ->orderBy($column, 'desc')
+            ->lockForUpdate()
+            ->first();
+
+        if (! $lastRecord)
+        {
+            $nextNumber = $startFrom;
+        }
+        else
+        {
+
+            $currentNumber = (int) str_replace($prefix, '', $lastRecord->$column);
+            $nextNumber = $currentNumber + 1;
+        }
+
+        return $prefix . $nextNumber;
+    }
     public function show(Item $item)
     {
         $item->load(['assignments.personnel', 'assignments.registrar']);

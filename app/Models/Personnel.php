@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Personnel extends Model
 {
     use SoftDeletes;
+    protected $table = 'personnels';
 
     protected $fillable = [
         'first_name', 'last_name', 'national_code',
@@ -15,7 +16,7 @@ class Personnel extends Model
     ];
 
     // اکسسور برای نام کامل
-    public function getFullNameAttribute()
+    public function getFullNameAttribute(): string
     {
         return "{$this->first_name} {$this->last_name}";
     }

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('inventory_code')->unique()->nullable();
             $table->text('description')->nullable();
 
-            $table->enum('status',['lost','lost','assigned','available'])->default('available');
+            $table->enum('status',['lost','assigned','available'])->default('available');
 
             $table->foreignId('current_personnel_id')
                   ->nullable()

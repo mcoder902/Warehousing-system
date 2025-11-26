@@ -28,8 +28,8 @@ class PersonnelController extends Controller
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'personnel_code' => 'nullable|string|unique:personnel,personnel_code',
-            'national_code' => 'nullable|string|digits:10|unique:personnel,national_code',
+            'personnel_code' => 'nullable|string|unique:personnels,personnel_code',
+            'national_code' => 'nullable|string|digits:10|unique:personnels,national_code',
             'department' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:20',
             'is_active' => 'boolean'
@@ -51,8 +51,8 @@ class PersonnelController extends Controller
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'personnel_code' => 'nullable|string|unique:personnel,personnel_code,' . $personnel->id,
-            'national_code' => 'nullable|string|digits:10|unique:personnel,national_code,' . $personnel->id,
+            'personnel_code' => 'nullable|string|unique:personnels,personnel_code,' . $personnel->id,
+            'national_code' => 'nullable|string|digits:10|unique:personnels ,national_code,' . $personnel->id,
             'department' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:20',
             'is_active' => 'boolean'
